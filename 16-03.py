@@ -1,24 +1,38 @@
 import math
 
+
+class colors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
+type_of_calculation = 0
 try:
-    type_of_calculation = int(input("What do you want to calculate?\n"
-                                    "[0] square\n"
-                                    "[1] rectangle\n"
-                                    "[2] circle\n"
-                                    "[3] triangle\n"))
+    type_of_calculation = int(input(f"{colors.BOLD}What do you want to calculate?\n"
+                                    f"{colors.ENDC}[{colors.UNDERLINE}0{colors.ENDC}] square\n"
+                                    f"[{colors.UNDERLINE}1{colors.ENDC}] rectangle\n"
+                                    f"[{colors.UNDERLINE}2{colors.ENDC}] circle\n"
+                                    f"[{colors.UNDERLINE}3{colors.ENDC}] triangle\n"))
 except ValueError:
-    print("Please enter a number")
+    print(f"{colors.UNDERLINE}Please enter a number")
     exit(-1)
 
-
 if type_of_calculation == 0:
-    side_a = int(input("What is side A?\n"))
+    side_a = int(input(f"{colors.HEADER}What is side A?\n"))
 
     area = side_a * side_a
     scope = side_a * 4
 
-    print(f"The area is {area}\n")
-    print(f"The scope is {scope}\n")
+    print(f"The area is {area}\n"
+          f"The scope is {scope}\n")
+
 
 elif type_of_calculation == 1:
     side_a = int(input("What is side A\n"))
@@ -27,8 +41,8 @@ elif type_of_calculation == 1:
     area = side_a * side_b
     scope = (side_a * 2) + (side_b * 2)
 
-    print(f"The area is {area}\n")
-    print(f"The scope is {scope}\n")
+    print(f"The area is {area}\n"
+          f"The scope is {scope}\n")
 
 elif type_of_calculation == 2:
     radius = int(input("What is the radius?\n"))
@@ -36,8 +50,8 @@ elif type_of_calculation == 2:
     area = radius ** 2 * math.pi
     scope = radius * 2 * math.pi
 
-    print(f"The area is {area}\n")
-    print(f"The scope is {scope}\n")
+    print(f"The area is {area}\n"
+          f"The scope is {scope}\n")
 
 elif type_of_calculation == 3:
     side_a = int(input("What is side A?\n"))
@@ -46,5 +60,5 @@ elif type_of_calculation == 3:
     area = (side_a * height) / 2
     scope = side_a * 3
 
-    print(f"The area is {area}\n")
-    print(f"The scope is {scope}\n")
+    print(f"The area is {area}\n"
+          f"The scope is {scope}\n")
