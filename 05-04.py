@@ -6,6 +6,8 @@ from ctypes import c_uint
 from ctypes import c_ulong
 from ctypes import POINTER
 from ctypes import byref
+import random
+
 import keyboard
 import threading
 from subprocess import call
@@ -26,6 +28,8 @@ from subprocess import call
 fun_mode = False  # Do you want to have fun? (AT OWN RISK, only for windows :( )
 
 sleep_time = 0.1  # Too glitchy? increase this int (!reduces/increases input time! - !makes game faster/slower!)
+
+debug = True  # shows additional debug information
 
 
 def printf(s):
@@ -94,6 +98,22 @@ player_old = "o"
 
 player_is_jumping = False
 
+info = \
+"""
+====================================================================================================
+||                                                                                                ||
+||                ONLY RUN THIS GAME IN CMD/TERMINAL, NOT IN PYCHARM OR GOOGLE COLAB!             ||
+||                                                                                                ||
+||                                                                                                ||
+||                 This game doesn't really have a story (didn't have enough time)                ||
+||                                                                                                ||
+||                                        Have fun with... idk                                    ||
+||                                                                                                ||
+||                                      press [\033[1mENTER\033[0m] to continue                                 ||
+||                                                                                                ||
+====================================================================================================
+"""
+
 menu = \
     """
 ==================================================================================================== ?
@@ -101,9 +121,9 @@ menu = \
 ||                                             GAME MENU                                          || ?
 ||                                                                                                || ?
 ||                                                                                                || ?
-||                                           1 Start Game                                         || ?
-||                                                                                                || ?
-||                                           2 Options                                            || ?
+||          [W ^]                            1 Start Game                                         || ?
+||          [S v]                                                                                 || ?
+||          [ENTER]                          2 Options                                            || ?
 ||                                                                                                || ?
 ||                                           3 Quit                                               || ?
 ||  by CrazyPhil                                                                                  || ?
@@ -129,17 +149,19 @@ good_bye = \
 """
 
 world = \
-    """   
-.................................................................................................... ?
-|                                        ^                                                         | ?
-|                                      /   \                                                       | ?
-|                                     /_____\                                                      | ?
-|                                     | |_| |                                                      | ?
-|_____________________________________|_____|______________________________________________________| ?                                                                                       ?
-
+    """    _
+         _|W|_                                                                                            ?
+        |A|S|D|    SPACE                                                                                 ?   
+...................................................................................................... ?
+|                                        ^                                                           | ?
+|                                      /   \      ^                   ^                              | ?
+|                                     /_____\    / \                 / \                             | ?
+|                                     | |_| |   /___\               /___\                            | ?
+|_____________________________________|_____|_____|___________________|______________________________| ?                                                                                       ?
+|Printed Frames: %FRAMES% |
 """
 
-GAME_STATE = "MAIN_MENU"
+GAME_STATE = "INFO"
 selected_menu = 1
 
 
@@ -161,12 +183,26 @@ def add_menu():
     return str(new_menu).replace("1", " ").replace("2", " ").replace("3", " ")
 
 
-# adding the player to the world
-def add_player():
-    global world, player_x, player_y
+def add_tree():
     world_array = world.split("?")
     new_world = ""
 
+    for y in range(0, len(world_array)):
+        for x in range(0, len(world_array[y])):
+            new_world += world_array[y][x]
+
+    return new_world
+
+
+frame_ = 0
+
+
+# adding the player to the world
+def add_player():
+    global world, player_x, player_y, frame_
+    world_array = world.split("?")
+    new_world = ""
+    frame_ += 1
     for y in range(0, len(world_array)):
         for x in range(0, len(world_array[y])):
 
@@ -174,8 +210,10 @@ def add_player():
                 new_world += player_old
             else:
                 new_world += world_array[y][x]
-
-    return new_world
+    if debug :
+        return new_world.replace("%FRAMES%", str(frame_))
+    else:
+        return new_world
 
 
 def player_jump():
@@ -195,7 +233,12 @@ player_jump_thread = MTThread(target=player_jump)
 def process_player_input():
     global player_x, player_y, selected_menu, GAME_STATE
 
-    if GAME_STATE == "WORLD":
+    if GAME_STATE == "INFO":
+        if keyboard.is_pressed("enter"):
+            GAME_STATE = "MAIN_MENU"
+            time.sleep(0.2)
+
+    elif GAME_STATE == "WORLD":
         if keyboard.is_pressed("d"):
             if player_x >= 99:
                 player_x = 98
@@ -249,10 +292,14 @@ def process_player_input():
 
 player_x, player_y = 10, 5
 
+clear()
+print(info)
+
 while True:
     # printing the world
 
     if GAME_STATE == "WORLD":
+
         print(add_player())
         print("\n")
 
@@ -269,4 +316,5 @@ while True:
     process_player_input()
 
     time.sleep(sleep_time)
-    clear()
+    if GAME_STATE != "INFO":
+        clear()
