@@ -1,5 +1,6 @@
 import os
 import time
+import webbrowser
 from ctypes import windll
 from ctypes import c_int
 from ctypes import c_uint
@@ -89,20 +90,16 @@ start_time = time.time()
 frame_count = 0
 fps = 0
 
-player_test = \
-    """
-       o ?
-      /|\\ ?
-      / \\ ?"""
-player_old = "o"
-
 player_is_jumping = False
+player_is_sneaking = False
+
+show_dialog = True
 
 info = \
-"""
+    """
 ====================================================================================================
 ||                                                                                                ||
-||                ONLY RUN THIS GAME IN CMD/TERMINAL, NOT IN PYCHARM OR GOOGLE COLAB!             ||
+||          ONLY RUN THIS GAME IN CMD/TERMINAL, NOT DIRECTLY FROM PYCHARM OR GOOGLE COLAB!        ||
 ||                                                                                                ||
 ||                                                                                                ||
 ||                 This game doesn't really have a story (didn't have enough time)                ||
@@ -112,6 +109,24 @@ info = \
 ||                                      press [\033[1mENTER\033[0m] to continue                                 ||
 ||                                                                                                ||
 ====================================================================================================
+"""
+
+story = \
+    """
+====================================================================================================
+||                                                                                                ||
+||                                                                                                ||
+||                                    Just one advise                                             ||
+||                                                                                                ||
+||                                                                                                ||
+||                                                                                                ||
+||                                  \033[1m DONT COME NEAR IT      \033[0m                                      ||
+||                                                                                                ||
+||                                                                                                ||
+||                                                                                                ||
+====================================================================================================
+
+
 """
 
 menu = \
@@ -149,27 +164,60 @@ good_bye = \
 """
 
 world = \
-    """    _
-         _|W|_                                                                                            ?
-        |A|S|D|    SPACE                                                                                 ?   
-...................................................................................................... ?
-|                                        ^                                                           | ?
-|                                      /   \      ^                   ^                              | ?
-|                                     /_____\    / \                 / \                             | ?
-|                                     | |_| |   /___\               /___\                            | ?
-|_____________________________________|_____|_____|___________________|______________________________| ?                                                                                       ?
-|Printed Frames: %FRAMES% |
+    """
+...................................................................................................................................................... ?
+|                                                                                ^                                                                   | ?
+|                                                                               / \                                                                  | ?
+|                                                                              /   \    /\                                                           | ?
+|                                        ^                                    /     \  /  \                                                          | ?
+|                                      /   \      ^                   ^      /       \/    \                                                         | ?
+|                                     /_____\    / \                 / \    /         \     \                                                        | ?
+|                                     | |_| |   /___\               /___\  /           \     \                                                       | ?
+|_____________________________________|_____|_____|___________________|___/_____________\_____\______________________________________________________| ?
+|         CONTROLS        |           DEBUG          |                                               | ?
+|     W                   | Printed Frames: %FRAMES% |                                               | ?
+|   A S D    SPACE    C   |                          |                                               | ?
+------------------------------------------------------------------------------------------------------ ?
+"""
+
+jumpscare = \
+    """
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⣠⠤⠶⠶⠤⠴⢤⠶⠤⠤⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⡞⠉⠁⣴⡆⣸⣿⣿⣿⣿⠛⣷⣌⡻⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠘⠿⣿⣿⣿⣿⣿⣿⣦⣿⣿⣿⣿⣿⣿⣮⢻⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣯⣀⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⢿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡿⢈⣽⣿⣿⠟⠛⠛⠉⠛⠉⠁⠀⠀⠀⠘⢻⣿⣧⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢥⣼⣿⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⢘⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⡇⠀⣀⣀⣀⣠⣄⠀⠀⢠⣤⣄⣀⠀⣿⡿⣿⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⢿⢿⣿⡇⠀⠻⣿⣭⣽⢹⣇⠀⠘⣿⣶⣮⠟⢹⣇⢛⡁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⣘⣿⡇⠀⠚⠉⠀⠂⠈⣙⠀⠀⠈⠀⠀⠀⣘⣻⠿⣆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡺⣧⠈⢷⡄⠀⠀⠀⠀⢠⣶⣤⠀⢠⡄⢀⡄⢸⣿⣴⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠣⣽⣶⣾⣄⡀⠀⠀⠀⢘⣇⣉⣀⡀⠃⠘⣶⢫⣴⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠃⠈⣿⣇⠀⠀⠀⢿⡿⡶⢿⣟⣠⣤⣏⣾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣤⢹⡽⠆⠀⠀⢀⡽⠷⢶⣶⠶⣯⣯⡍⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣴⡟⢸⣷⠀⠀⠀⠀⢀⣠⢿⣿⡀⣿⡇⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣾⣿⣿⢸⣿⠀⠀⠀⠀⠈⠁⣸⡏⡷⣏⢻⣦⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣠⣶⣿⣿⣿⣿⣿⣿⡆⠻⣆⢠⠂⣠⣀⣰⣟⣻⣯⣸⠈⣿⣿⣿⣿⣶⣦⣤⣀⡀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⣀⣤⣶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣧⠀⠙⢧⡀⠀⠀⠸⣯⣿⣿⣽⠀⢹⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⡀⠀⠀
+⠀⠀⢀⣠⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣇⣄⠈⢻⣄⠀⠀⢩⣟⡈⠁⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⠀
+⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠈⠀⠀⠈⠓⠶⠿⠀⠀⠀⠀⠀⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄
+⠰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⠿⣿⣿⣿⣿⣿⣦⡔⠶⠶⢦⣤⣤⠀⠀⣤⣀⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡇
+⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⢰⣼⠿⠿⣿⣿⣿⣿⠛⠛⠒⠶⠶⠶⢤⣠⣬⣽⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷
+⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡿⠁⡞⣿⠉⠈⠀⠛⠻⢿⣿⣟⠛⠓⠒⠶⠶⢾⣧⣶⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⢹⣇⢻⣿⣿⣿⣿⣿⣿⣿⣿⠇⢾⠃⠙⠓⠒⠰⣴⣶⣾⣿⣿⠛⠛⠛⠒⠒⢻⠠⣶⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⠈⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣀⣸⠀⠀⠀⣤⠀⠈⢻⣿⣿⣿⡛⠛⠛⠛⠒⠚⠶⢶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
+⣼⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣏⠁⠀⠈⠀⢬⣤⣶⣿⣿⣿⣿⣟⠉⠛⠛⠛⣿⡾⢶⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 """
 
 GAME_STATE = "INFO"
+EASTER_EGG_STATE = ""
 selected_menu = 1
 
 
 def add_menu():
     menu_array = menu.split("?")
     new_menu = ""
-
-    number_index = menu.find(str(selected_menu))
 
     for y in range(0, len(menu_array)):
         for x in range(0, len(menu_array[y])):
@@ -183,34 +231,52 @@ def add_menu():
     return str(new_menu).replace("1", " ").replace("2", " ").replace("3", " ")
 
 
-def add_tree():
-    world_array = world.split("?")
-    new_world = ""
-
-    for y in range(0, len(world_array)):
-        for x in range(0, len(world_array[y])):
-            new_world += world_array[y][x]
-
-    return new_world
-
-
 frame_ = 0
 
+text_x, text_y = 0, 0
+text_msg = ""
 
-# adding the player to the world
-def add_player():
+entity_text = ""
+
+entity_x, entity_y = 3, 8
+entity_shown = False
+
+
+def move_entity():
+    pass
+
+
+def edit_world():
     global world, player_x, player_y, frame_
     world_array = world.split("?")
+    string_index = 0
+    entity_string_index = 0
     new_world = ""
     frame_ += 1
     for y in range(0, len(world_array)):
         for x in range(0, len(world_array[y])):
 
+            # adding player
             if x == player_x and y == player_y:
-                new_world += player_old
+                if player_is_sneaking:
+                    new_world += "i"
+                else:
+                    new_world += "I"
+            # add e#ti$Ä
+            elif entity_shown and x == entity_x and y == entity_y:
+                new_world += "\033[91m?\033[0m"
+            # adding text
+            elif not text_msg is "" and y == text_y and text_x <= x <= text_x + len(text_msg) - 1:
+                new_world += text_msg[string_index]
+                string_index += 1
+            # adding text
+            elif not entity_text is "" and y == entity_y - 2 and entity_x <= x <= entity_x + len(entity_text) - 1:
+                new_world += entity_text[entity_string_index]
+                entity_string_index += 1
             else:
                 new_world += world_array[y][x]
-    if debug :
+
+    if debug:
         return new_world.replace("%FRAMES%", str(frame_))
     else:
         return new_world
@@ -229,9 +295,70 @@ def player_jump():
 
 player_jump_thread = MTThread(target=player_jump)
 
+frame_then = 0
+
+
+def entity_run():
+    global entity_x
+    for i in range(0, 200):
+        entity_x += 1
+        time.sleep(0.03)
+
+
+def summon_entity():
+    global entity_y, entity_shown, entity_text
+    entity_shown = True
+    entity_text = "کاستڵپلاستل"
+    entity_y = 0
+    time.sleep(0.5)
+    entity_y = 1
+    time.sleep(0.5)
+    entity_y = 2
+    time.sleep(0.5)
+    entity_y = 3
+    time.sleep(0.5)
+    entity_y = 4
+    time.sleep(0.5)
+    entity_y = 5
+    time.sleep(0.5)
+    entity_y = 6
+    time.sleep(0.5)
+    entity_y = 7
+    time.sleep(0.5)
+    entity_y = 8
+
+
+def run_dialog():
+    global text_msg, text_x, text_y, entity_shown, entity_text
+    text_msg = "What am I supposed to do?"
+    time.sleep(4)
+    text_msg = "And what did they mean by 'it'?"
+    time.sleep(6)
+    text_msg = "?!"
+    summon_entity()
+    time.sleep(2)
+    text_msg = "That's what they meant."
+    time.sleep(3)
+    text_msg = "AHHHHH"
+    entity_run()
+
+
+dialog_thread = MTThread(target=run_dialog)
+
 
 def process_player_input():
-    global player_x, player_y, selected_menu, GAME_STATE
+    global player_x, player_y, selected_menu, GAME_STATE, player_is_sneaking, EASTER_EGG_STATE, text_msg, frame_then
+    world_width = len(world.split("?")[0])
+
+    if frame_then + 50 == frame_:
+        text_msg = ""
+
+    if EASTER_EGG_STATE == "WALK":
+        if keyboard.is_pressed("d") or keyboard.is_pressed("a") or keyboard.is_pressed("c") or keyboard.is_pressed(
+                "space"):
+            EASTER_EGG_STATE = "WALK_BACK"
+            text_msg = "Oh you are here"
+            frame_then = frame_
 
     if GAME_STATE == "INFO":
         if keyboard.is_pressed("enter"):
@@ -240,8 +367,8 @@ def process_player_input():
 
     elif GAME_STATE == "WORLD":
         if keyboard.is_pressed("d"):
-            if player_x >= 99:
-                player_x = 98
+            if player_x >= world_width:
+                player_x = world_width - 1
             else:
                 player_x += 1
 
@@ -259,7 +386,12 @@ def process_player_input():
 
         if keyboard.is_pressed("c"):
             # sneak
-            pass
+            player_is_sneaking = True
+
+        if not keyboard.is_pressed("c"):
+            # sneak
+            player_is_sneaking = False
+
         if keyboard.is_pressed("escape"):
             GAME_STATE = "MAIN_MENU"
 
@@ -273,7 +405,7 @@ def process_player_input():
 
         if keyboard.is_pressed("enter"):
             if selected_menu == 1:
-                GAME_STATE = "WORLD"
+                GAME_STATE = "ADVISE"
 
             elif selected_menu == 2:
                 GAME_STATE = "OPTIONS"
@@ -287,10 +419,13 @@ def process_player_input():
     if GAME_STATE == "OPTIONS":
         # ...
         if keyboard.is_pressed("y"):
-            trigger_fun()
+            if fun_mode:
+                trigger_fun()
+            else:
+                GAME_STATE = "MAIN_MENU"
 
 
-player_x, player_y = 10, 5
+player_x, player_y = 10, 8
 
 clear()
 print(info)
@@ -299,9 +434,44 @@ while True:
     # printing the world
 
     if GAME_STATE == "WORLD":
+        text_x = player_x
+        text_y = player_y - 2
+        if entity_x >= player_x:
+            print(jumpscare)
+            time.sleep(0.5)
+            url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            webbrowser.open(url)
+            exit("gub")
+        else:
+            print(edit_world())
 
-        print(add_player())
+        if frame_ == 100 and player_x == 10 and player_y == 8:
+            EASTER_EGG_STATE = "WALK"
+            text_msg = "Hello is someone there?"
+            text_x = player_x - 2
+            text_y = player_y - 3
+
+        if EASTER_EGG_STATE == "WALK" and frame_ == 140 and player_x == 10 and player_y == 8:
+            text_msg = "Do you know how to walk?"
+
+        if EASTER_EGG_STATE == "WALK" and frame_ == 180 and player_x == 10 and player_y == 8:
+            text_msg = "or is the game bugging?"
+
+        if EASTER_EGG_STATE == "WALK" and frame_ == 280 and player_x == 10 and player_y == 8:
+            text_msg = "Your gonna make me angry common"
+
+        if EASTER_EGG_STATE == "WALK" and frame_ >= 400 and player_x <= 10 and player_y == 8:
+            text_msg = "No im not doing this anymore."
+            player_x -= 1
+
+        if EASTER_EGG_STATE != "WALK" and frame_ == 80:
+            dialog_thread.start()
+
         print("\n")
+    elif GAME_STATE == "ADVISE":
+        print(story)
+        time.sleep(4)
+        GAME_STATE = "WORLD"
 
     elif GAME_STATE == "MAIN_MENU":
         print(add_menu())
