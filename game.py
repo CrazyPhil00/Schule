@@ -1,12 +1,12 @@
 import os
 import time
 import webbrowser
-from ctypes import windll
-from ctypes import c_int
-from ctypes import c_uint
-from ctypes import c_ulong
-from ctypes import POINTER
-from ctypes import byref
+# from ctypes import windll
+# from ctypes import c_int
+# from ctypes import c_uint
+# from ctypes import c_ulong
+# from ctypes import POINTER
+# from ctypes import byref
 import random
 
 import keyboard
