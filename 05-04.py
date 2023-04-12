@@ -26,7 +26,7 @@ from subprocess import call
 # ------------------------------------------------------------------------------------- #                                                                                                                                                              
 """
 
-fun_mode = False  # Do you want to have fun? (AT OWN RISK, only for windows :( )
+# fun_mode = False  # Do you want to have fun? (AT OWN RISK, only for windows :( ) (!REMOVED!)
 
 sleep_time = 0.1  # Too glitchy? increase this int (!reduces/increases input time! - !makes game faster/slower!)
 
@@ -49,7 +49,7 @@ def clear():
         _ = os.system('clear')
 
 
-# for fun
+""" REMOVED
 def trigger_fun():
     nullptr = POINTER(c_int)()
 
@@ -68,6 +68,7 @@ def trigger_fun():
         c_uint(6),
         byref(c_uint())
     )
+"""
 
 
 # threading doesn't allow multiple threads running at the same time so...
@@ -92,6 +93,7 @@ fps = 0
 
 player_is_jumping = False
 player_is_sneaking = False
+player_facing = "S"
 
 show_dialog = True
 
@@ -142,7 +144,7 @@ menu = \
 ||                                                                                                || ?
 ||                                           3 Quit                                               || ?
 ||  by CrazyPhil                                                                                  || ?
-====================================================================================================   ?
+==================================================================================================== ?
     
 """
 
@@ -167,19 +169,19 @@ world = \
     """
 ...................................................................................................................................................... ?
 |                                                                                ^                                                                   | ?
-|                                                                               / \                                                                  | ?
-|                                                                              /   \    /\                                                           | ?
-|                                        ^                                    /     \  /  \                                                          | ?
-|                                      /   \      ^                   ^      /       \/    \                                                         | ?
-|                                     /_____\    / \                 / \    /         \     \                                                        | ?
-|                                     | |_| |   /___\               /___\  /           \     \                                                       | ?
-|_____________________________________|_____|_____|___________________|___/_____________\_____\______________________________________________________| ?
+|                                       _                                       / \                                                                  | ?
+|                                     /   \                                    /   \    /\                                                           | ?
+|                                    /     \                                  /     \  /  \                                                          | ?
+|                                   /_______\     ^                   ^      /       \/    \                                                         | ?
+|                                   | __  __|    / \                 / \    /         \     \                                                        | ?
+|                                   ||__||  |   /___\               /___\  /           \     \                                                       | ?
+|___________________________________|____|__|_____|___________________|___/_____________\_____\______________________________________________________| ?
 |         CONTROLS        |           DEBUG          |                                               | ?
 |     W                   | Printed Frames: %FRAMES% |                                               | ?
 |   A S D    SPACE    C   |                          |                                               | ?
 ------------------------------------------------------------------------------------------------------ ?
 """
-
+# nothing to see here.
 jumpscare = \
     """
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -238,12 +240,8 @@ text_msg = ""
 
 entity_text = ""
 
-entity_x, entity_y = 3, 8
+entity_x, entity_y = 5, 8
 entity_shown = False
-
-
-def move_entity():
-    pass
 
 
 def edit_world():
@@ -257,14 +255,60 @@ def edit_world():
         for x in range(0, len(world_array[y])):
 
             # adding player
-            if x == player_x and y == player_y:
+
+            if x == player_x and y == player_y - 2:
                 if player_is_sneaking:
-                    new_world += "i"
+                    new_world += "o"
                 else:
-                    new_world += "I"
-            # add e#ti$Ä
+                    new_world += "O"
+
+            elif x == player_x and y == player_y:
+                if player_is_sneaking:
+                    new_world += "|"
+                else:
+                    new_world += world_array[y][x]
+
+            elif x == player_x - 1 and y == player_y:
+                if not player_is_sneaking or player_facing == "O":
+                    new_world += "/"
+                else:
+                    new_world += world_array[y][x]
+
+            elif x == player_x + 1 and y == player_y:
+                if not player_is_sneaking or player_facing == "W":
+                    new_world += "\\"
+                else:
+                    new_world += world_array[y][x]
+
+            elif x == player_x - 1 and y == player_y - 1:
+                new_world += "/"
+
+            elif x == player_x and y == player_y - 1:
+                new_world += "|"
+
+            elif x == player_x + 1 and y == player_y - 1:
+                new_world += "\\"
+
+
+
+            # adding e#ti$Ä
+            elif entity_shown and x == entity_x - 1 and y == entity_y - 2:
+                new_world += "\\"
+
+            elif entity_shown and x == entity_x + 1 and y == entity_y - 2:
+                new_world += "/"
+
+            elif entity_shown and x == entity_x - 1 and y == entity_y - 1:
+                new_world += "\\"
+
+            elif entity_shown and x == entity_x + 1 and y == entity_y - 1:
+                new_world += "/"
+
+            elif entity_shown and x == entity_x and y == entity_y - 1:
+                new_world += "|"
             elif entity_shown and x == entity_x and y == entity_y:
-                new_world += "\033[91m?\033[0m"
+                new_world += "o"
+
             # adding text
             elif not text_msg is "" and y == text_y and text_x <= x <= text_x + len(text_msg) - 1:
                 new_world += text_msg[string_index]
@@ -279,7 +323,7 @@ def edit_world():
     if debug:
         return new_world.replace("%FRAMES%", str(frame_))
     else:
-        return new_world
+        return new_world.replace("Printed Frames: %FRAMES%", "")
 
 
 def player_jump():
@@ -308,23 +352,22 @@ def entity_run():
 def summon_entity():
     global entity_y, entity_shown, entity_text
     entity_shown = True
-    entity_text = "کاستڵپلاستل"
     entity_y = 0
-    time.sleep(0.5)
+    time.sleep(0.3)
     entity_y = 1
-    time.sleep(0.5)
+    time.sleep(0.3)
     entity_y = 2
-    time.sleep(0.5)
+    time.sleep(0.3)
     entity_y = 3
-    time.sleep(0.5)
+    time.sleep(0.3)
     entity_y = 4
-    time.sleep(0.5)
+    time.sleep(0.3)
     entity_y = 5
-    time.sleep(0.5)
+    time.sleep(0.3)
     entity_y = 6
-    time.sleep(0.5)
+    time.sleep(0.3)
     entity_y = 7
-    time.sleep(0.5)
+    time.sleep(0.3)
     entity_y = 8
 
 
@@ -347,16 +390,17 @@ dialog_thread = MTThread(target=run_dialog)
 
 
 def process_player_input():
-    global player_x, player_y, selected_menu, GAME_STATE, player_is_sneaking, EASTER_EGG_STATE, text_msg, frame_then
+    global player_x, player_y, selected_menu, GAME_STATE, player_is_sneaking, EASTER_EGG_STATE, text_msg, frame_then, player_facing
     world_width = len(world.split("?")[0])
 
     if frame_then + 50 == frame_:
         text_msg = ""
 
+        EASTER_EGG_STATE = ""
+
     if EASTER_EGG_STATE == "WALK":
         if keyboard.is_pressed("d") or keyboard.is_pressed("a") or keyboard.is_pressed("c") or keyboard.is_pressed(
                 "space"):
-            EASTER_EGG_STATE = "WALK_BACK"
             text_msg = "Oh you are here"
             frame_then = frame_
 
@@ -366,17 +410,26 @@ def process_player_input():
             time.sleep(0.2)
 
     elif GAME_STATE == "WORLD":
+        if keyboard.is_pressed("W"):
+            player_facing = "N"
+
+        if keyboard.is_pressed("S"):
+            player_facing = "S"
+
         if keyboard.is_pressed("d"):
             if player_x >= world_width:
                 player_x = world_width - 1
             else:
                 player_x += 1
+            player_facing = "O"
 
         if keyboard.is_pressed("a"):
             if player_x <= 2:
                 player_x = 2
             else:
                 player_x -= 1
+
+            player_facing = "W"
 
         if keyboard.is_pressed("space"):
             # jump
@@ -418,11 +471,10 @@ def process_player_input():
                 exit(0)
     if GAME_STATE == "OPTIONS":
         # ...
-        if keyboard.is_pressed("y"):
-            if fun_mode:
-                trigger_fun()
-            else:
-                GAME_STATE = "MAIN_MENU"
+        if keyboard.is_pressed("escape"):
+            # if fun_mode:
+            #   trigger_fun()
+            GAME_STATE = "MAIN_MENU"
 
 
 player_x, player_y = 10, 8
@@ -434,9 +486,9 @@ while True:
     # printing the world
 
     if GAME_STATE == "WORLD":
-        text_x = player_x
-        text_y = player_y - 2
-        if entity_x >= player_x:
+        text_x = player_x + 2
+        text_y = player_y - 3
+        if entity_x >= player_x and entity_shown:
             print(jumpscare)
             time.sleep(0.5)
             url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
@@ -448,7 +500,7 @@ while True:
         if frame_ == 100 and player_x == 10 and player_y == 8:
             EASTER_EGG_STATE = "WALK"
             text_msg = "Hello is someone there?"
-            text_x = player_x - 2
+            text_x = player_x + 2
             text_y = player_y - 3
 
         if EASTER_EGG_STATE == "WALK" and frame_ == 140 and player_x == 10 and player_y == 8:
@@ -458,13 +510,14 @@ while True:
             text_msg = "or is the game bugging?"
 
         if EASTER_EGG_STATE == "WALK" and frame_ == 280 and player_x == 10 and player_y == 8:
-            text_msg = "Your gonna make me angry common"
+            text_msg = "Your gonna make me angry"
 
         if EASTER_EGG_STATE == "WALK" and frame_ >= 400 and player_x <= 10 and player_y == 8:
             text_msg = "No im not doing this anymore."
             player_x -= 1
 
-        if EASTER_EGG_STATE != "WALK" and frame_ == 80:
+        if EASTER_EGG_STATE != "WALK" and not EASTER_EGG_STATE == "ENTITY" and not player_x == 10 and frame_ >= 80:
+            EASTER_EGG_STATE = "ENTITY"
             dialog_thread.start()
 
         print("\n")
