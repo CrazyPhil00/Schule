@@ -1,6 +1,6 @@
 """
 
-                                Körperberechnungen
+Körperberechnungen
 
 """
 

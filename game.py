@@ -8,7 +8,6 @@ import webbrowser
 # from ctypes import POINTER
 # from ctypes import byref
 import random
-
 import keyboard
 import threading
 from subprocess import call
@@ -103,6 +102,7 @@ info = \
 ||                                                                                                ||
 ||          ONLY RUN THIS GAME IN CMD/TERMINAL, NOT DIRECTLY FROM PYCHARM OR GOOGLE COLAB!        ||
 ||                                                                                                ||
+||                                      (play only in fullscreen!)                                ||
 ||                                                                                                ||
 ||                 This game doesn't really have a story (didn't have enough time)                ||
 ||                                                                                                ||
@@ -145,7 +145,7 @@ menu = \
 ||                                           3 Quit                                               || ?
 ||  by CrazyPhil                                                                                  || ?
 ==================================================================================================== ?
-    
+
 """
 
 good_bye = \
