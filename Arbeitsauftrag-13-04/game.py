@@ -157,7 +157,7 @@ world = \
 ------------------------------------------------------------------------------------------------------ ?
 """
 # nothing to see here.
-jumpscare = \
+fun = \
     """
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
 ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⣠⠤⠶⠶⠤⠴⢤⠶⠤⠤⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
@@ -260,7 +260,6 @@ def edit_world():
             elif x == player.x + 1 and y == player.y - 1:
                 new_world += "\\"
 
-
             # adding the Entity to the World
             elif entity.is_visible and x == entity.x - 1 and y == entity.y - 2:
                 new_world += "\\"
@@ -279,18 +278,15 @@ def edit_world():
             elif entity.is_visible and x == entity.x and y == entity.y:
                 new_world += "o"
 
-
             # adding label for the Player
             elif not text_msg == "" and y == text_y and text_x <= x <= text_x + len(text_msg) - 1:
                 new_world += text_msg[string_index]
                 string_index += 1
 
-
             # adding label for the Entity
             elif not entity_text == "" and y == entity.y - 2 and entity.x <= x <= entity.x + len(entity_text) - 1:
                 new_world += entity_text[entity_string_index]
                 entity_string_index += 1
-
 
             # adding the background
             else:
@@ -466,11 +462,11 @@ while True:
             url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
             webbrowser.open(url)
             time.sleep(0.5)
-            print(jumpscare)
+            print(fun)
             exit(0)
         else:
             print(edit_world())
-        # trigger event when framecount reached 100 frames
+        # trigger event when the framecount reached 100 frames
         if frame_count == 100 and player.x == 10 and player.y == 8:
             EASTER_EGG_STATE = "WALK"
             text_msg = "Hello is someone there?"
