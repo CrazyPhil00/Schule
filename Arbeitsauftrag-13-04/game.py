@@ -1,18 +1,7 @@
-import os
-import time
-import webbrowser
-# from ctypes import windll
-# from ctypes import c_int
-# from ctypes import c_uint
-# from ctypes import c_ulong
-# from ctypes import POINTER
-# from ctypes import byref
-import random
-import keyboard
-import threading
-from subprocess import call
-
 """
+
+Eigene Aufgabe
+
 # ------------------------------------------------------------------------------------- #
 #         __          __  _____    _____   _    _   _______   _____    _____   _        #
 #         \ \        / / |_   _|  / ____| | |  | | |__   __| |_   _|  / ____| | |       #
@@ -21,13 +10,19 @@ from subprocess import call
 #            \  /\  /     _| |_  | |____  | |  | |    | |     _| |_  | |__| | |_|       #
 #             \/  \/     |_____|  \_____| |_|  |_|    |_|    |_____|  \_____| (_)       #
 #                                                                                       #
-#             Nur in cmd/terminal ausführen, nicht in pycharm oder Google Colab!        #                                                
-# ------------------------------------------------------------------------------------- #                                                                                                                                                              
+#             Nur in cmd/terminal ausführen, nicht in pycharm oder Google Colab!        #
+# ------------------------------------------------------------------------------------- #
 """
+
+import os
+import time
+import webbrowser
+import keyboard
+import threading
 
 sleep_time = 0.1  # Too glitchy? increase this int (!reduces/increases input time! - !makes game faster/slower!)
 
-debug = True  # shows additional debug information
+debug = False  # shows additional debug information
 
 
 def printf(s):
@@ -44,6 +39,7 @@ def clear():
     # mac / linux
     else:
         _ = os.system('clear')
+
 
 # Entity class
 class Entity:
@@ -70,6 +66,7 @@ class MTThread(threading.Thread):
     def run(self):
         super().run()
         threading.Thread.__init__(self, name=self.mt_name, target=self.mt_target)
+
 
 # Initialize Player and Entity
 
@@ -203,7 +200,7 @@ def add_menu():
     for y in range(0, len(menu_array)):
         for x in range(0, len(menu_array[y])):
             if menu_array[y][x] == str(selected_menu):
-              # showing wich menuitem is selected
+                # showing wich menuitem is selected
                 new_menu += "\033[1m-\033[0m"
             else:
                 new_menu += menu_array[y][x]
@@ -228,7 +225,6 @@ def edit_world():
     frame_count += 1
     for y in range(0, len(world_array)):
         for x in range(0, len(world_array[y])):
-
 
             # adding the player to the World
             if x == player.x and y == player.y - 2:
@@ -316,6 +312,7 @@ def player_jump():
 
     player.is_jumping = False
 
+
 # thread for jumping
 player_jump_thread = MTThread(target=player_jump)
 
@@ -366,6 +363,7 @@ def run_dialog():
 
 
 dialog_thread = MTThread(target=run_dialog)
+
 
 # processing the player input
 def process_player_input():

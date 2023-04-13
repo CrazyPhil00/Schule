@@ -1,3 +1,10 @@
+"""
+
+Warscheinlichkeiten zufälliger zahlen ermitteln (Aufgabe 4-2)
+
+"""
+
+
 import random
 
 

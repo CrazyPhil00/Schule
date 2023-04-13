@@ -1,3 +1,10 @@
+"""
+
+Ausrechnung eines wochentags durch gegebenen datum (7.6)
+
+"""
+
+
 # Ask user for input
 day = int(input("Please enter the day: "))
 month = int(input("Please enter the month: "))

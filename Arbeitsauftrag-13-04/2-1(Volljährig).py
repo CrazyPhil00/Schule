@@ -1,3 +1,9 @@
+"""
+
+Überprüfung der Volljährigkeit (Aufgabe 2.1)
+
+"""
+
 # try to ask for input. If the user doesn't enter a int it exits
 try:
     if int(input("How old are you")) > 17:
