@@ -7,7 +7,7 @@ Körperberechnungen
 
 import math
 
-
+# colors for print
 class colors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -22,6 +22,7 @@ class colors:
 
 type_of_calculation = 0
 try:
+  # question the user wich type he wants to calculate
     type_of_calculation = int(input(f"{colors.BOLD}What do you want to calculate?\n"
                                     f"{colors.ENDC}[{colors.UNDERLINE}0{colors.ENDC}] square\n"
                                     f"[{colors.UNDERLINE}1{colors.ENDC}] rectangle\n"
@@ -32,6 +33,7 @@ except ValueError:
     exit(-1)
 
 if type_of_calculation == 0:
+  # User selected square
     side_a = int(input(f"{colors.HEADER}What is side A?\n"))
 
     area = side_a * side_a
@@ -42,6 +44,7 @@ if type_of_calculation == 0:
 
 
 elif type_of_calculation == 1:
+  # user selected rectangle
     side_a = int(input("What is side A\n"))
     side_b = int(input("What is side B\n"))
 
@@ -52,6 +55,7 @@ elif type_of_calculation == 1:
           f"The scope is {scope}\n")
 
 elif type_of_calculation == 2:
+  # user selected circle
     radius = int(input("What is the radius?\n"))
 
     area = radius ** 2 * math.pi
@@ -61,6 +65,7 @@ elif type_of_calculation == 2:
           f"The scope is {scope}\n")
 
 elif type_of_calculation == 3:
+  # user selected triangle
     side_a = int(input("What is side A?\n"))
     height = int(input("What is the height?\n"))
 
