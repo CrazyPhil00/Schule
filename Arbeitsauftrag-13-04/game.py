@@ -200,7 +200,7 @@ def add_menu():
     for y in range(0, len(menu_array)):
         for x in range(0, len(menu_array[y])):
             if menu_array[y][x] == str(selected_menu):
-                # showing wich menuitem is selected
+                # showing which menuitem is selected
                 new_menu += "\033[1m-\033[0m"
             else:
                 new_menu += menu_array[y][x]
