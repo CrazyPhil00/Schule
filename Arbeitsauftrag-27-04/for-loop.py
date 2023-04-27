@@ -1,4 +1,4 @@
-amount = int(input("Wie viele Zahlen willst du addieren?"))
+amount = int(input("How many numbers do you want to add?"))
 
 result = 0
 
